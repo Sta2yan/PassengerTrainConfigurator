@@ -70,7 +70,7 @@ namespace PassengerTrainConfigurator
                         _direction.Create(_train);
                         break;
                     case (int)ControlMenuCommand.SellTickets:
-                        SellTicket(_train);
+                        SellTicket();
                         break;
                     case (int)ControlMenuCommand.FormTrain:
                         _train.Form(GetTrainCars());
@@ -105,7 +105,7 @@ namespace PassengerTrainConfigurator
             return trainCars;
         }
 
-        public void SellTicket(Train train)
+        public void SellTicket()
         {
             int maximumPassengers = 100;
             int minimumPassengers = 30;
@@ -113,17 +113,17 @@ namespace PassengerTrainConfigurator
             int minimumTicketPrice = 1000;
             int number = _random.Next(minimumPassengers, maximumPassengers);
 
-            if (train.Direction == null)
+            if (_train.Direction == null)
             {
                 Console.WriteLine("Не указан рейс!");
             }
             else
             {
-                if (train.BoughtTicket <= 0)
+                if (_train.BoughtTicket <= 0)
                 {
                     for (int i = 0; i < number; i++)
                     {
-                        train.AddBoughtPlace(new Ticket(_random.Next(minimumTicketPrice, maximumTicketPrice)));
+                        _train.AddBoughtPlace(new Ticket(_random.Next(minimumTicketPrice, maximumTicketPrice)));
                     }
 
                     Console.WriteLine($"Продано {number} билетов");
