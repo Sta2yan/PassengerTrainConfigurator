@@ -225,17 +225,6 @@ namespace PassengerTrainConfigurator
 
             Console.WriteLine("Нужные вагоны добавлены");
         }
-        private int GetFreePlaces()
-        {
-            int freePlace = 0;
-
-            for (int i = 0; i < _trainCars.Count; i++)
-            {
-                freePlace += _trainCars[i].NumberPlaces;
-            }
-
-            return freePlace;
-        }
 
         public void SetDiretion(Direction direction)
         {
@@ -255,6 +244,18 @@ namespace PassengerTrainConfigurator
             {
                 Console.WriteLine("Ошибка");
             }
+        }
+
+        private int GetFreePlaces()
+        {
+            int freePlace = 0;
+
+            for (int i = 0; i < _trainCars.Count; i++)
+            {
+                freePlace += _trainCars[i].NumberPlaces;
+            }
+
+            return freePlace;
         }
 
         private void ResetTrain()
