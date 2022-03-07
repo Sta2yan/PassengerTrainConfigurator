@@ -7,48 +7,8 @@ namespace PassengerTrainConfigurator
     {
         static void Main(string[] args)
         {
-            Random random = new Random();
             Manager manager = new Manager();
-            Train train = new Train();
-            Direction direction = new Direction();
-            bool isOpen = true;
-
-            while (isOpen)
-            {
-                Console.WriteLine($"Текущий рейс: ");
-                train.ShowInfo();
-                Console.WriteLine($"\n{(int)ControlMenuCommand.CreateDirection}. {ControlMenuCommand.CreateDirection}" +
-                                  $"\n{(int)ControlMenuCommand.SellTickets}. {ControlMenuCommand.SellTickets}" +
-                                  $"\n{(int)ControlMenuCommand.FormTrain}. {ControlMenuCommand.FormTrain}" +
-                                  $"\n{(int)ControlMenuCommand.SendTrain}. {ControlMenuCommand.SendTrain}" +
-                                  $"\n{(int)ControlMenuCommand.Exit}. {ControlMenuCommand.Exit}");
-                int userInput = GetNumber(Console.ReadLine());
-                Console.Clear();
-
-                switch (userInput)
-                {
-                    case (int)ControlMenuCommand.CreateDirection:
-                        direction.Create(train);
-                        break;
-                    case (int)ControlMenuCommand.SellTickets:
-                        manager.SellTicket(train);
-                        break;
-                    case (int)ControlMenuCommand.FormTrain:
-                        train.Form(manager.GetTrainCars());
-                        break;
-                    case (int)ControlMenuCommand.SendTrain:
-                        train.Send();
-                        break;
-                    case (int)ControlMenuCommand.Exit:
-                        isOpen = false;
-                        break;
-                }
-
-                Console.ReadKey();
-                Console.Clear();
-            }
-
-            Console.WriteLine("Выход ...");
+            manager.Start();
         }
 
         public static int GetNumber(string numberText)
@@ -76,6 +36,60 @@ namespace PassengerTrainConfigurator
 
     class Manager
     {
+        private Random _random;
+        private Train _train;
+        private Direction direction;
+        
+        public bool isOpen { get; private set; }
+
+        public Manager()
+        {
+            _random = new Random();
+            _train = new Train();
+            direction = new Direction();
+            isOpen = true;
+        }
+
+        public void Start()
+        {
+            while (isOpen)
+            {
+                Console.WriteLine($"Текущий рейс: ");
+                _train.ShowInfo();
+                Console.WriteLine($"\n{(int)ControlMenuCommand.CreateDirection}. {ControlMenuCommand.CreateDirection}" +
+                                  $"\n{(int)ControlMenuCommand.SellTickets}. {ControlMenuCommand.SellTickets}" +
+                                  $"\n{(int)ControlMenuCommand.FormTrain}. {ControlMenuCommand.FormTrain}" +
+                                  $"\n{(int)ControlMenuCommand.SendTrain}. {ControlMenuCommand.SendTrain}" +
+                                  $"\n{(int)ControlMenuCommand.Exit}. {ControlMenuCommand.Exit}");
+                int userInput = Program.GetNumber(Console.ReadLine());
+                Console.Clear();
+
+                switch (userInput)
+                {
+                    case (int)ControlMenuCommand.CreateDirection:
+                        direction.Create(_train);
+                        break;
+                    case (int)ControlMenuCommand.SellTickets:
+                        SellTicket(_train);
+                        break;
+                    case (int)ControlMenuCommand.FormTrain:
+                        _train.Form(GetTrainCars());
+                        break;
+                    case (int)ControlMenuCommand.SendTrain:
+                        _train.Send();
+                        break;
+                    case (int)ControlMenuCommand.Exit:
+                        isOpen = false;
+                        break;
+                }
+
+                Console.ReadKey();
+                Console.Clear();
+            }
+
+            Console.WriteLine("Выход ...");
+        }
+
         public List<TrainCar> GetTrainCars()
         {
             Random random = new Random();
@@ -186,7 +200,7 @@ namespace PassengerTrainConfigurator
 
         public void Form(List<TrainCar> trainCars)
         {
-            while (_soldTickets.Count > GetFreePlaces())
+            while (_soldTickets.Count > GetFreePlaces() - 1)
             {
                 Console.WriteLine($"Кол-во оплаченных билетов: {_soldTickets.Count}");
                 Console.WriteLine($"Кол-во свободных мест: {GetFreePlaces()}");
