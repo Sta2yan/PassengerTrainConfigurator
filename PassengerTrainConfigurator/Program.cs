@@ -9,22 +9,13 @@ namespace PassengerTrainConfigurator
         {
             Random random = new Random();
 
-            CommandCentre commandCenter = new CommandCentre();
             Train train = new Train();
-            int maximumPassengers = 100;
-            int minimumPassengers = 30;
-            int maximumTicketPrice = 2000;
-            int minimumTicketPrice = 1000;
-            int numberTrainCar = 10;
-            int maximumTrainCarPlace = 16;
-            int minimumTrainCarPlace = 10;
-            int ticketPrice = random.Next(minimumTicketPrice, maximumTicketPrice);
+            Direction direction = new Direction();
 
             bool isOpen = true;
 
             while (isOpen)
             {
-                int passengers = random.Next(minimumPassengers, maximumPassengers);
                 Console.WriteLine($"Текущий рейс: ");
                 train.ShowInfo();
                 Console.WriteLine($"\n{(int)ControlMenuCommand.CreateDirection}. {ControlMenuCommand.CreateDirection}" +
@@ -38,16 +29,16 @@ namespace PassengerTrainConfigurator
                 switch (userInput)
                 {
                     case (int)ControlMenuCommand.CreateDirection:
-                        train.CreateDirection();
+                        direction.Create(train);
                         break;
                     case (int)ControlMenuCommand.SellTickets:
-                        commandCenter.SellTicket(train, ticketPrice, passengers);
+                        SellTicket(train);
                         break;
                     case (int)ControlMenuCommand.FormTrain:
-                        train.FormTrain(GetTrainCars(numberTrainCar, minimumTrainCarPlace, maximumTrainCarPlace));
+                        train.FormTrain(GetTrainCars());
                         break;
                     case (int)ControlMenuCommand.SendTrain:
-                        commandCenter.SendTrain(ref train);
+                        train.SendTrain();
                         break;
                     case (int)ControlMenuCommand.Exit:
                         isOpen = false;
@@ -74,9 +65,12 @@ namespace PassengerTrainConfigurator
             return number;
         }
 
-        public static List<TrainCar> GetTrainCars(int number, int minimumPlace, int maximumPlace)
+        public static List<TrainCar> GetTrainCars()
         {
             Random random = new Random();
+            int number = 10;
+            int maximumPlace = 16;
+            int minimumPlace = 10;
             List<TrainCar> trainCars = new List<TrainCar>();
 
             for (int i = 0; i < number; i++)
@@ -85,6 +79,37 @@ namespace PassengerTrainConfigurator
             }
 
             return trainCars;
+        }
+
+        static void SellTicket(Train train)
+        {
+            Random random = new Random();
+            int maximumPassengers = 100;
+            int minimumPassengers = 30;
+            int maximumTicketPrice = 2000;
+            int minimumTicketPrice = 1000;
+            int number = random.Next(minimumPassengers, maximumPassengers);
+
+            if (train.Direction == null)
+            {
+                Console.WriteLine("Не указан рейс!");
+            }
+            else
+            {
+                if (train.BoughtTicket <= 0)
+                {
+                    for (int i = 0; i < number; i++)
+                    {
+                        train.AddBoughtPlace(new Ticket(random.Next(minimumTicketPrice, maximumTicketPrice)));
+                    }
+
+                    Console.WriteLine($"Продано {number} билетов");
+                }
+                else
+                {
+                    Console.WriteLine("Билеты распроданы");
+                }
+            }
         }
     }
 
@@ -97,44 +122,29 @@ namespace PassengerTrainConfigurator
         Exit
     }
 
-    class CommandCentre
+    class Direction
     {
-        public void SellTicket(Train train, int ticketPrice, int number)
-        {
-            if (train.From == null || train.To == null)
-            {
-                Console.WriteLine("Не указан рейс!");
-            }
-            else
-            {
-                if (train.BoughtTicket <= 0)
-                {
-                    for (int i = 0; i < number; i++)
-                    {
-                        train.AddBoughtPlace(new Ticket(1000));
-                    }
+        public string From { get; private set; }
+        public string To { get; private set; }
 
-                    Console.WriteLine($"Продано {number} билетов");
-                }
-                else
-                {
-                    Console.WriteLine("Билеты распроданы");
-                }
-            }
-        }
-
-        public void SendTrain(ref Train train)
+        public void Create(Train train)
         {
-            if (train.GetFreePlaces() > train.BoughtTicket)
+            if (train.Direction == null)
             {
-                Console.WriteLine($"{train.Name} отправляется ..." +
-                                  $"\nИнформация о поезде:");
+                Console.WriteLine("Укажите место отправки:");
+                From = Console.ReadLine();
+                Console.WriteLine("Укажите место прибытия:");
+                To = Console.ReadLine();
+
+                train.SetDiretion(this);
+
+                Console.WriteLine("Маршрут");
                 train.ShowInfo();
-                train = new Train();
+                Console.WriteLine("Успешно задан");
             }
             else
             {
-                Console.WriteLine("Ошибка");
+                Console.WriteLine("Маршрут уже задан");
             }
         }
     }
@@ -144,10 +154,9 @@ namespace PassengerTrainConfigurator
         private List<TrainCar> _trainCars = new();
         private List<Ticket> _soldTickets = new();
 
-        public string From { get; private set; }
-        public string To { get; private set; }
+        public Direction Direction { get; set; }
         public string Name { get; private set; }
-        public int BoughtTicket { get { return _soldTickets.Count; }  }
+        public int BoughtTicket { get { return _soldTickets.Count; } private set { } }
 
         public Train(string name = null)
         {
@@ -155,25 +164,6 @@ namespace PassengerTrainConfigurator
 
             if (name == null)
                 Name = $"Поезд_{random.Next(0, 100_000)}";
-        }
-
-        public void CreateDirection()
-        {
-            if (From == null || To == null)
-            {
-                Console.WriteLine("Укажите место отправки:");
-                From = Console.ReadLine();
-                Console.WriteLine("Укажите место прибытия:");
-                To = Console.ReadLine();
-
-                Console.WriteLine("Маршрут");
-                ShowInfo();
-                Console.WriteLine("Успешно задан");
-            }
-            else
-            {
-                Console.WriteLine("Маршрут уже задан");
-            }
         }
 
         public void AddCar(TrainCar car)
@@ -188,8 +178,18 @@ namespace PassengerTrainConfigurator
 
         public void ShowInfo()
         {
-            Console.WriteLine($"Название поезда - {Name} | Место отправки - {From} | Место прибытия - {To}" +
-                              $" | Кол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
+            if (Direction == null)
+            {
+                Console.WriteLine($"Название поезда - {Name}" +
+                                  $"\nМесто отправки - Не установлено | Место прибытия - Не установлено" +
+                                  $"\nКол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
+            }
+            else
+            {
+                Console.WriteLine($"Название поезда - {Name}" +
+                                  $"\nМесто отправки - {Direction.From} | Место прибытия - {Direction.To}" +
+                                  $"\nКол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
+            }
         }
 
         public void FormTrain(List<TrainCar> trainCars)
@@ -225,8 +225,7 @@ namespace PassengerTrainConfigurator
 
             Console.WriteLine("Нужные вагоны добавлены");
         }
-
-        public int GetFreePlaces()
+        private int GetFreePlaces()
         {
             int freePlace = 0;
 
@@ -236,6 +235,36 @@ namespace PassengerTrainConfigurator
             }
 
             return freePlace;
+        }
+
+        public void SetDiretion(Direction direction)
+        {
+            Direction = direction;
+        }
+
+        public void SendTrain()
+        {
+            if (GetFreePlaces() > BoughtTicket)
+            {
+                Console.WriteLine($"{Name} отправляется ..." +
+                                  $"\nИнформация о поезде:");
+                ShowInfo();
+                ResetTrain();
+            }
+            else
+            {
+                Console.WriteLine("Ошибка");
+            }
+        }
+
+        private void ResetTrain()
+        {
+            Random random = new Random();
+            _trainCars = new();
+            _soldTickets = new();
+            Direction = null;
+            Name = $"Поезд_{random.Next(0, 100_000)}";
+            BoughtTicket = 0;
         }
     }
 
