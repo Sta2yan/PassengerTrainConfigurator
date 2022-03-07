@@ -38,21 +38,21 @@ namespace PassengerTrainConfigurator
     {
         private Random _random;
         private Train _train;
-        private Direction direction;
+        private Direction _direction;
         
-        public bool isOpen { get; private set; }
+        public bool IsOpen { get; private set; }
 
         public Manager()
         {
             _random = new Random();
             _train = new Train();
-            direction = new Direction();
-            isOpen = true;
+            _direction = new Direction();
+            IsOpen = true;
         }
 
         public void Start()
         {
-            while (isOpen)
+            while (IsOpen)
             {
                 Console.WriteLine($"Текущий рейс: ");
                 _train.ShowInfo();
@@ -67,7 +67,7 @@ namespace PassengerTrainConfigurator
                 switch (userInput)
                 {
                     case (int)ControlMenuCommand.CreateDirection:
-                        direction.Create(_train);
+                        _direction.Create(_train);
                         break;
                     case (int)ControlMenuCommand.SellTickets:
                         SellTicket(_train);
@@ -79,7 +79,7 @@ namespace PassengerTrainConfigurator
                         _train.Send();
                         break;
                     case (int)ControlMenuCommand.Exit:
-                        isOpen = false;
+                        IsOpen = false;
                         break;
                 }
 
@@ -92,7 +92,6 @@ namespace PassengerTrainConfigurator
 
         public List<TrainCar> GetTrainCars()
         {
-            Random random = new Random();
             int number = 10;
             int maximumPlace = 16;
             int minimumPlace = 10;
@@ -100,7 +99,7 @@ namespace PassengerTrainConfigurator
 
             for (int i = 0; i < number; i++)
             {
-                trainCars.Add(new TrainCar(random.Next(minimumPlace, maximumPlace)));
+                trainCars.Add(new TrainCar(_random.Next(minimumPlace, maximumPlace)));
             }
 
             return trainCars;
@@ -108,12 +107,11 @@ namespace PassengerTrainConfigurator
 
         public void SellTicket(Train train)
         {
-            Random random = new Random();
             int maximumPassengers = 100;
             int minimumPassengers = 30;
             int maximumTicketPrice = 2000;
             int minimumTicketPrice = 1000;
-            int number = random.Next(minimumPassengers, maximumPassengers);
+            int number = _random.Next(minimumPassengers, maximumPassengers);
 
             if (train.Direction == null)
             {
@@ -125,7 +123,7 @@ namespace PassengerTrainConfigurator
                 {
                     for (int i = 0; i < number; i++)
                     {
-                        train.AddBoughtPlace(new Ticket(random.Next(minimumTicketPrice, maximumTicketPrice)));
+                        train.AddBoughtPlace(new Ticket(_random.Next(minimumTicketPrice, maximumTicketPrice)));
                     }
 
                     Console.WriteLine($"Продано {number} билетов");
