@@ -11,7 +11,6 @@ namespace PassengerTrainConfigurator
             Manager manager = new Manager();
             Train train = new Train();
             Direction direction = new Direction();
-
             bool isOpen = true;
 
             while (isOpen)
@@ -35,10 +34,10 @@ namespace PassengerTrainConfigurator
                         manager.SellTicket(train);
                         break;
                     case (int)ControlMenuCommand.FormTrain:
-                        train.FormTrain(manager.GetTrainCars());
+                        train.Form(manager.GetTrainCars());
                         break;
                     case (int)ControlMenuCommand.SendTrain:
-                        train.SendTrain();
+                        train.Send();
                         break;
                     case (int)ControlMenuCommand.Exit:
                         isOpen = false;
@@ -185,7 +184,7 @@ namespace PassengerTrainConfigurator
                               $"\nКол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
         }
 
-        public void FormTrain(List<TrainCar> trainCars)
+        public void Form(List<TrainCar> trainCars)
         {
             while (_soldTickets.Count > GetFreePlaces())
             {
@@ -224,14 +223,14 @@ namespace PassengerTrainConfigurator
             Direction = direction;
         }
 
-        public void SendTrain()
+        public void Send()
         {
             if (GetFreePlaces() > BoughtTicket)
             {
                 Console.WriteLine($"{Name} отправляется ..." +
                                   $"\nИнформация о поезде:");
                 ShowInfo();
-                ResetTrain();
+                Reset();
             }
             else
             {
@@ -251,7 +250,7 @@ namespace PassengerTrainConfigurator
             return freePlace;
         }
 
-        private void ResetTrain()
+        private void Reset()
         {
             Random random = new Random();
             _trainCars = new();
