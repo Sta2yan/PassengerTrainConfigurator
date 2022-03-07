@@ -8,7 +8,7 @@ namespace PassengerTrainConfigurator
         static void Main(string[] args)
         {
             Random random = new Random();
-
+            Manager manager = new Manager();
             Train train = new Train();
             Direction direction = new Direction();
 
@@ -32,10 +32,10 @@ namespace PassengerTrainConfigurator
                         direction.Create(train);
                         break;
                     case (int)ControlMenuCommand.SellTickets:
-                        SellTicket(train);
+                        manager.SellTicket(train);
                         break;
                     case (int)ControlMenuCommand.FormTrain:
-                        train.FormTrain(GetTrainCars());
+                        train.FormTrain(manager.GetTrainCars());
                         break;
                     case (int)ControlMenuCommand.SendTrain:
                         train.SendTrain();
@@ -64,8 +64,20 @@ namespace PassengerTrainConfigurator
 
             return number;
         }
+    }
+    
+    enum ControlMenuCommand
+    {
+        CreateDirection = 1,
+        SellTickets,
+        FormTrain,
+        SendTrain,
+        Exit
+    }
 
-        public static List<TrainCar> GetTrainCars()
+    class Manager
+    {
+        public List<TrainCar> GetTrainCars()
         {
             Random random = new Random();
             int number = 10;
@@ -81,7 +93,7 @@ namespace PassengerTrainConfigurator
             return trainCars;
         }
 
-        static void SellTicket(Train train)
+        public void SellTicket(Train train)
         {
             Random random = new Random();
             int maximumPassengers = 100;
@@ -111,15 +123,6 @@ namespace PassengerTrainConfigurator
                 }
             }
         }
-    }
-
-    enum ControlMenuCommand
-    {
-        CreateDirection = 1,
-        SellTickets,
-        FormTrain,
-        SendTrain,
-        Exit
     }
 
     class Direction
@@ -178,18 +181,8 @@ namespace PassengerTrainConfigurator
 
         public void ShowInfo()
         {
-            if (Direction == null)
-            {
-                Console.WriteLine($"Название поезда - {Name}" +
-                                  $"\nМесто отправки - Не установлено | Место прибытия - Не установлено" +
-                                  $"\nКол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
-            }
-            else
-            {
-                Console.WriteLine($"Название поезда - {Name}" +
-                                  $"\nМесто отправки - {Direction.From} | Место прибытия - {Direction.To}" +
-                                  $"\nКол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
-            }
+            Console.WriteLine($"Название поезда - {Name}" +
+                              $"\nКол-во мест в поезде - {GetFreePlaces()} | Купленных билетов - {_soldTickets.Count}");
         }
 
         public void FormTrain(List<TrainCar> trainCars)
